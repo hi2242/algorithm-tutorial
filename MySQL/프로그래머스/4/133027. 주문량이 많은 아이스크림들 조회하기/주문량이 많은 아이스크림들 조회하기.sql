@@ -1,0 +1,29 @@
+WITH 
+FLAT_JULY_DATA AS (
+    SELECT SHIPMENT_ID, FLAVOR, SUM(TOTAL_ORDER) AS TOTAL_ORDER
+    FROM JULY
+    GROUP BY FLAVOR
+),
+
+RANKING_DATA AS (
+    SELECT ROW_NUMBER() OVER(ORDER BY FH.TOTAL_ORDER + FJ.TOTAL_ORDER DESC), FH.FLAVOR
+    FROM FIRST_HALF AS FH
+    LEFT JOIN FLAT_JULY_DATA AS FJ
+    ON FH.FLAVOR = FJ.FLAVOR
+)
+SELECT FLAVOR
+FROM RANKING_DATA
+LIMIT 3
+;
+
+# 2600 + 460 = 3060 caramel
+# 3200 + 520 = 3720 chocolate
+# 1700 + 400 = 2100 mint_chocolate
+# 2450 + 500 = 2950 peach
+# 3100 + 520 + 220 = 3620 strawberry
+# 2800 + 560 = 3360 vanilla
+# 3100 + 350 = 3450 white_chocolate
+
+# chocolate
+# strawberry
+# white_chocolate

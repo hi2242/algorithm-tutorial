@@ -1,0 +1,25 @@
+WITH GRADE_DATA AS (
+    SELECT EMP_NO,
+        CASE
+            WHEN AVG(SCORE) >= 96 THEN 'S'
+            WHEN AVG(SCORE) >= 90 THEN 'A'
+            WHEN AVG(SCORE) >= 80 THEN 'B'
+            ELSE 'C'
+        END AS GRADE,
+        CASE
+            WHEN AVG(SCORE) >= 96 THEN 20
+            WHEN AVG(SCORE) >= 90 THEN 15
+            WHEN AVG(SCORE) >= 80 THEN 10
+            ELSE 0
+        END AS BONUS_PERCENT
+    FROM HR_GRADE
+    GROUP BY EMP_NO
+    
+)
+
+SELECT E.EMP_NO, E.EMP_NAME, G.GRADE, E.SAL * SUM(G.BONUS_PERCENT) / 100 AS BONUS
+FROM HR_EMPLOYEES AS E
+LEFT JOIN GRADE_DATA AS G
+ON E.EMP_NO = G.EMP_NO
+GROUP BY E.EMP_NO
+;

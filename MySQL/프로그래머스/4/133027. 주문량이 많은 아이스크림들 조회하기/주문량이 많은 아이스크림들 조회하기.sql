@@ -1,29 +1,31 @@
-WITH 
-FLAT_JULY_DATA AS (
-    SELECT SHIPMENT_ID, FLAVOR, SUM(TOTAL_ORDER) AS TOTAL_ORDER
+-- [0] 기본 정보
+-- FIRST_HALF: 상반기 주문 정보 테이블
+    -- SHIPMENT_ID(FK, JULY): 출하 번호
+    -- FLAVOR(PK): 맛
+    -- TOTAL_ORDER: 상반기 총 주문량
+-- JULY: 7월 주문 정보 테이블
+    -- SHIPMENT_ID(PK): 출하 번호
+    -- FLAVOR(FK, FIRST_HALF): 맛
+    -- TOTAL_ORDER: 7월 총 주문량
+
+-- [1] 문제 정보
+-- 7월 아이스크림 총 주문량 + 상반기 아이스크림 총 주문량을 큰 순서대로 상위 3개의 맛 조회
+
+WITH JULY_TOTAL AS (
+    SELECT FLAVOR, SUM(TOTAL_ORDER) AS S
     FROM JULY
     GROUP BY FLAVOR
 ),
-
-RANKING_DATA AS (
-    SELECT ROW_NUMBER() OVER(ORDER BY FH.TOTAL_ORDER + FJ.TOTAL_ORDER DESC), FH.FLAVOR
-    FROM FIRST_HALF AS FH
-    LEFT JOIN FLAT_JULY_DATA AS FJ
-    ON FH.FLAVOR = FJ.FLAVOR
+FIRST_HALF_TOTAL AS (
+    SELECT FLAVOR, SUM(TOTAL_ORDER) AS S
+    FROM FIRST_HALF
+    GROUP BY FLAVOR
 )
-SELECT FLAVOR
-FROM RANKING_DATA
-LIMIT 3
-;
 
-# 2600 + 460 = 3060 caramel
-# 3200 + 520 = 3720 chocolate
-# 1700 + 400 = 2100 mint_chocolate
-# 2450 + 500 = 2950 peach
-# 3100 + 520 + 220 = 3620 strawberry
-# 2800 + 560 = 3360 vanilla
-# 3100 + 350 = 3450 white_chocolate
-
-# chocolate
-# strawberry
-# white_chocolate
+SELECT F.FLAVOR
+FROM FIRST_HALF_TOTAL AS F
+LEFT JOIN JULY_TOTAL AS J
+ON F.FLAVOR = J.FLAVOR
+GROUP BY FLAVOR
+ORDER BY SUM(F.S + J.S) DESC
+LIMIT 3;

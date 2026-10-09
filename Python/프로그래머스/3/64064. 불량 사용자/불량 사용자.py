@@ -10,7 +10,7 @@
 # answer -> 당첨에서 제외되어야 할 제재 아이디 목록 경우의 수
 
 import sys
-import itertools
+from itertools import product
 
 sys.setrecursionlimit(10**7)
 
@@ -24,21 +24,11 @@ def solution(user_id, banned_id):
                 temp.append(uid)
         if len(temp) != 0:
             possible_id.append(temp)
-    
-    def dfs(depth, l, s):
-        nonlocal answer
-        if depth == l:
-            if len(s) == l:
-                answer.add(frozenset(s))
-            return
-        
-        for uid in possible_id[depth]:
-            if uid not in s:
-                s.add(uid)
-                dfs(depth + 1, l, s)
-                s.remove(uid)
-            
-    dfs(0, len(possible_id), set())
+    cartesian_list = product(*possible_id)
+    for uid_list in cartesian_list:
+        s_uid_list = set(uid_list)
+        if len(s_uid_list) == len(possible_id):
+            answer.add(frozenset(set(uid_list)))
     return len(answer)
 
 def compare(a, b):

@@ -13,10 +13,9 @@
 # answer -> 각 노드 방문 후 모을 수 있는 양의 최대 마리 수
 
 # 함수 정보
-
+# init -> 트리를 초기화하는 함수
 
 # BFS + 비트마스킹 (다음 노드 / 양의 수 / 늑대의 수 / 방문 비트마스킹 정보)
-# 리프부터 타고 오면서 (양의 수 / 늑대 수)가 (0 / 1)인 것은 버리고 안 가냐/한쪽만 가냐/양쪽 다 가냐 네 개 운용
 
 from collections import deque
         
@@ -34,8 +33,7 @@ def solution(info, edges):
     
     while dq:
         node_num, sheep_count, dog_count, mask = dq.popleft()
-        if sheep_count <= dog_count:
-            continue
+
         answer = max(answer, sheep_count)
         
         for next_node_num in tree[node_num]:
@@ -48,9 +46,10 @@ def solution(info, edges):
                     # 방문했다면 카운팅하지 않고 다음 노드 탐색
                     dq.append((next_node_num, sheep_count, dog_count, mask))
             else:
-                # 방문하지 않았다면 카운팅 후 탐색
+                # 방문하지 않았다면 카운팅 후 잡아먹히지 않는 경우 탐색
                 if not (mask & 1 << next_node_num):
-                    dq.append((0, sheep_count, dog_count + 1, mask | 1 << next_node_num))
+                    if sheep_count > dog_count + 1:
+                        dq.append((0, sheep_count, dog_count + 1, mask | 1 << next_node_num))
                 else:
                     # 방문했다면 카운팅하지 않고 다음 노드 탐색
                     dq.append((next_node_num, sheep_count, dog_count, mask))
